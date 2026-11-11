@@ -4,74 +4,61 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Toolkit roadmap</title>
-  <meta name="description" content="A 4.5-year learning plan for a control systems PhD, with a free resource for every skill.">
+  <meta name="description" content="A five-year learning plan for a control systems PhD, with a free resource for every skill.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <a class="skip" href="#toolkit-h">Skip to the toolkit</a>
-  <div class="layout">
 
-    <aside class="rail" aria-label="Where you are in the PhD">
-      <div class="rail-track" id="rail">
-        <div class="rail-line"></div>
-        <div class="rail-marker" id="marker">
-          <span class="rail-dot"></span>
-          <span class="rail-today" id="today-label">Today</span>
-        </div>
-      </div>
-    </aside>
-
-    <main>
-      <header class="hero">
-        <h1>Learn the tools before the topic.</h1>
-        <p class="lede">A plan for the 4.5 years of a control systems PhD that ends in learning-based control for autonomous vehicles. Every skill below links to one free place to learn it.</p>
-        <p class="overall" id="overall" aria-live="polite"></p>
-        <nav class="jump" aria-label="On this page">
-          <a href="#next-h">Up next</a>
-          <a href="#timeline-h">Timeline</a>
-          <a href="#toolkit-h">Toolkit</a>
-        </nav>
-      </header>
-
-      <section aria-labelledby="next-h">
-        <h2 id="next-h">Up next</h2>
-        <p class="intro" id="next-intro"></p>
-        <ul class="next" id="next"></ul>
-      </section>
-
-      <section aria-labelledby="timeline-h">
-        <h2 id="timeline-h">The next 4.5 years</h2>
-        <ol class="phases" id="phases"></ol>
-      </section>
-
-      <section aria-labelledby="toolkit-h">
-        <h2 id="toolkit-h">Toolkit</h2>
-        <p class="intro">Tick a skill when you can use it without looking it up. Your ticks stay in this browser.</p>
-        <ul class="legend">
-          <li><span class="tier tier-essential">Essential</span> You cannot do this research well without it. Learn these first.</li>
-          <li><span class="tier tier-addon">Add-on</span> Makes you noticeably stronger. Take these once the essentials are moving.</li>
-          <li><span class="tier tier-cherry">Cherry on top</span> A bonus when everything else is solid. Skip freely.</li>
-        </ul>
-        <label class="search-label" for="search">Search the toolkit</label>
-        <input class="search" id="search" type="search" placeholder="Try Lyapunov, ROS, or MPC" autocomplete="off">
-        <p class="filter-label" id="priority-label">Priority</p>
-        <div class="filters" id="tier-filters" role="group" aria-labelledby="priority-label"></div>
-        <p class="filter-label" id="area-label">Area</p>
-        <div class="filters" id="filters" role="group" aria-labelledby="area-label"></div>
-        <p class="showing" id="showing" aria-live="polite"></p>
-        <div id="groups"></div>
-      </section>
-
-      <footer>
-        <p>Check each link before you rely on it, since course pages move. Reset your ticks any time.</p>
-        <button type="button" class="reset" id="reset">Reset progress</button>
-      </footer>
-    </main>
-
+  <div class="topbar">
+    <div class="wrap">
+      <p class="time" id="time"></p>
+      <div class="timebar" aria-hidden="true"><span id="timefill"></span></div>
+    </div>
   </div>
+
+  <main class="wrap">
+
+    <header class="hero">
+      <h1>Learn the tools before the topic.</h1>
+      <p class="lede">A five-year plan for a control systems PhD, with one free place to learn every skill.</p>
+      <p class="overall" id="overall" aria-live="polite"></p>
+    </header>
+
+    <section aria-labelledby="next-h">
+      <h2 id="next-h">Up next</h2>
+      <p class="intro" id="next-intro"></p>
+      <ul class="next" id="next"></ul>
+    </section>
+
+    <section aria-labelledby="toolkit-h">
+      <h2 id="toolkit-h">Toolkit</h2>
+      <p class="intro">Tick a skill when you can use it without looking it up. Essentials are needed for your research. Add-ons make you stronger. Cherries are optional extras.</p>
+
+      <div class="controls">
+        <div class="seg" id="view" role="group" aria-label="Which skills to show"></div>
+        <label class="visually-hidden" for="search">Search the toolkit</label>
+        <input class="search" id="search" type="search" placeholder="Search, for example Lyapunov" autocomplete="off">
+      </div>
+
+      <div id="groups"></div>
+    </section>
+
+    <section aria-labelledby="timeline-h">
+      <h2 id="timeline-h">Your five years</h2>
+      <div class="phases" id="phases"></div>
+    </section>
+
+    <footer>
+      <p>Check each link before you rely on it, since course pages move. Your ticks are saved in this browser only.</p>
+      <button type="button" class="reset" id="reset">Reset progress</button>
+    </footer>
+
+  </main>
+
+  <script src="data.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

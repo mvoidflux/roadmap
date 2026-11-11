@@ -3,7 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Toolkit roadmap</title>
+  <title>Toolkit roadmap: a five-year control systems PhD plan</title>
+  <meta name="theme-color" content="#1F5A6B">
+  <meta property="og:title" content="Toolkit roadmap">
+  <meta property="og:description" content="A five-year learning plan for a control systems PhD, with a free resource for every skill.">
+  <meta property="og:type" content="website">
   <meta name="description" content="A five-year learning plan for a control systems PhD, with a free resource for every skill.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,7 +28,9 @@
     <header class="hero">
       <h1>Learn the tools before the topic.</h1>
       <p class="lede">A five-year plan for a control systems PhD, with one free place to learn every skill.</p>
+      <p class="audience">Written for a student starting a PhD in learning-based control of surface vessels. Already know a topic? Tick it and move on. Your ticks decide what appears under Up next.</p>
       <p class="overall" id="overall" aria-live="polite"></p>
+      <noscript><p class="noscript">This roadmap needs JavaScript to show its skills and your progress. Please turn it on and reload.</p></noscript>
     </header>
 
     <section aria-labelledby="next-h">
@@ -38,10 +44,13 @@
       <p class="intro">Tick a skill when you can use it without looking it up. Essentials are needed for your research. Add-ons make you stronger. Cherries are optional extras.</p>
 
       <div class="controls">
+        <div class="seg years" id="years" role="group" aria-label="Show skills for one year"></div>
         <div class="seg" id="view" role="group" aria-label="Which skills to show"></div>
         <label class="visually-hidden" for="search">Search the toolkit</label>
         <input class="search" id="search" type="search" placeholder="Search, for example Lyapunov" autocomplete="off">
       </div>
+
+      <div class="yearinfo" id="yearinfo"></div>
 
       <div id="groups"></div>
     </section>
@@ -53,7 +62,13 @@
 
     <footer>
       <p>Check each link before you rely on it, since course pages move. Your ticks are saved in this browser only.</p>
-      <button type="button" class="reset" id="reset">Reset progress</button>
+      <div class="tools">
+        <button type="button" class="reset" id="export">Export progress</button>
+        <button type="button" class="reset" id="import">Import progress</button>
+        <button type="button" class="reset" id="reset">Reset progress</button>
+        <input type="file" id="importfile" accept="application/json,.json" hidden>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
     </footer>
 
   </main>

@@ -60,6 +60,15 @@
     return a;
   }
 
+  function timeText(s) {
+    var verb = (s.kind === "video" || s.kind === "course") ? "watch" : "read";
+    return "About " + s.hours[0] + " h to " + verb + ", " + s.hours[1] + " h to practise.";
+  }
+
+  function sumHours(list, i) {
+    return Math.round(list.reduce(function (t, s) { return t + s.hours[i]; }, 0));
+  }
+
   /* ---------- time bar ---------- */
 
   function buildTimeBar() {
@@ -89,6 +98,9 @@
       summary.appendChild(el("span", "phase-title", "Year " + (i + 1) + ": " + phase.title));
       summary.appendChild(el("span", "phase-dates", phase.dates));
       if (i === current) summary.appendChild(el("span", "phase-now", "You are here"));
+      var pp = el("span", "phase-progress");
+      pp.setAttribute("data-phase", i + 1);
+      summary.appendChild(pp);
       d.appendChild(summary);
 
       var ul = el("ul");
@@ -137,6 +149,7 @@
       var text = el("div");
       text.appendChild(link(s, "skill-title"));
       text.appendChild(el("p", "skill-note", s.note));
+      text.appendChild(el("p", "skill-time", timeText(s)));
 
       var btn = el("button", "text-button", "Mark learned");
       btn.type = "button";
@@ -161,13 +174,14 @@
   });
 
   var view = "essential";           // "essential" or "all"
-  var query = "";
+  var yearFilter = 0;          // 0 means all years
+var query = "";
   var openAreas = {};
   openAreas[areas[0]] = true;       // start with the first area open
 
   function matches(s) {
-    if (view === "essential" && s.tier !== "essential") return false;
-    if (!query) return true;
+    if (yearFilter && s.year !== yearFilter) return false;
+    if (!query) return view === "all" || s.tier === "essential";
     return (s.title + " " + s.note + " " + s.kind + " " + s.area).toLowerCase().indexOf(query) !== -1;
   }
 
@@ -193,6 +207,32 @@
       box.appendChild(b);
     });
 
+    function setView(v) {
+      view = v;
+      Array.prototype.forEach.call(box.children, function (child, i) {
+        child.setAttribute("aria-pressed", options[i][0] === v ? "true" : "false");
+      });
+    }
+
+    var yearBox = document.getElementById("years");
+    for (var y = 0; y <= 5; y++) {
+      (function (n) {
+        var count = SKILLS.filter(function (s) { return s.year === n; }).length;
+        var b = el("button", null, n === 0 ? "All years" : "Year " + n + " (" + count + ")");
+        b.type = "button";
+        b.setAttribute("aria-pressed", n === yearFilter ? "true" : "false");
+        b.addEventListener("click", function () {
+          yearFilter = n;
+          Array.prototype.forEach.call(yearBox.children, function (child) {
+            child.setAttribute("aria-pressed", child === b ? "true" : "false");
+          });
+          if (n) setView("all");   // a year shows everything planned for it
+          renderGroups();
+        });
+        yearBox.appendChild(b);
+      })(y);
+    }
+
     document.getElementById("search").addEventListener("input", function (e) {
       query = e.target.value.trim().toLowerCase();
       renderGroups();
@@ -210,9 +250,9 @@
       shown += skills.length;
 
       var group = el("details", "group");
-      group.open = !!query || !!openAreas[area];
+      group.open = !!query || !!yearFilter || !!openAreas[area];
       group.addEventListener("toggle", function () {
-        if (!query) openAreas[area] = group.open;
+        if (!query && !yearFilter) openAreas[area] = group.open;
       });
 
       var summary = el("summary");
@@ -246,10 +286,11 @@
         var text = el("div");
         text.appendChild(link(s, "skill-title"));
         text.appendChild(el("p", "skill-note", s.note));
+        text.appendChild(el("p", "skill-time", timeText(s)));
 
         var side = el("div", "skill-side");
-        if (view === "all") side.appendChild(el("span", "tier tier-" + s.tier, TIERS[s.tier]));
-        side.appendChild(el("span", null, "Year " + s.year));
+        if (view === "all" || query) side.appendChild(el("span", "tier tier-" + s.tier, TIERS[s.tier]));
+        side.appendChild(el("span", null, s.kind.charAt(0).toUpperCase() + s.kind.slice(1) + ", year " + s.year));
 
         li.appendChild(box);
         li.appendChild(text);
@@ -260,12 +301,44 @@
       host.appendChild(group);
     });
 
-    if (shown === 0) {
+    if (shown === 0 && !(yearFilter && !SKILLS.some(function (s) { return s.year === yearFilter; }))) {
       host.appendChild(el("p", "empty", "No skills match. Clear the search box, or choose Everything."));
     }
 
+    updateViewLabels();
+    renderYearInfo();
+
     updateProgress();
     renderNext();
+  }
+
+  function updateViewLabels() {
+    var inYear = SKILLS.filter(function (s) { return !yearFilter || s.year === yearFilter; });
+    var essentials = inYear.filter(function (s) { return s.tier === "essential"; }).length;
+    var buttons = document.getElementById("view").children;
+    buttons[0].textContent = "Essentials (" + essentials + ")";
+    buttons[1].textContent = "Everything (" + inYear.length + ")";
+  }
+
+  function renderYearInfo() {
+    var box = document.getElementById("yearinfo");
+    box.textContent = "";
+    if (!yearFilter) return;
+
+    var phase = PHASES[yearFilter - 1];
+    var left = SKILLS.filter(function (s) { return s.year === yearFilter && !done[skillId(s)]; });
+
+    box.appendChild(el("h3", null, "Year " + yearFilter + ": " + phase.title));
+    box.appendChild(el("p", "year-dates", phase.dates));
+    box.appendChild(el("p", "year-summary", left.length
+      ? "Left in year " + yearFilter + ": " + left.length + " skills, about " + sumHours(left, 0) +
+        " h to watch or read and " + sumHours(left, 1) + " h to practise."
+      : SKILLS.some(function (s) { return s.year === yearFilter; })
+        ? "You have ticked every skill listed for year " + yearFilter + "."
+        : "No skills are listed for year " + yearFilter + " yet. Work from the goals below."));
+    var ul = el("ul");
+    phase.goals.forEach(function (g) { ul.appendChild(el("li", null, g)); });
+    box.appendChild(ul);
   }
 
   function updateProgress() {
@@ -273,6 +346,13 @@
     var essentialsDone = essentials.filter(function (s) { return done[skillId(s)]; }).length;
     document.getElementById("overall").textContent =
       essentialsDone + " of " + essentials.length + " essentials learned";
+
+    Array.prototype.forEach.call(document.querySelectorAll("[data-phase]"), function (node) {
+      var y = Number(node.getAttribute("data-phase"));
+      var planned = SKILLS.filter(function (s) { return s.year === y; });
+      var n = planned.filter(function (s) { return done[skillId(s)]; }).length;
+      node.textContent = planned.length ? n + " of " + planned.length + " skills ticked" : "";
+    });
 
     areas.forEach(function (area) {
       var skills = SKILLS.filter(function (s) { return s.area === area && matches(s); });
@@ -291,6 +371,51 @@
     done = {};
     saveDone(done);
     renderGroups();
+  });
+
+  /* ---------- export and import ---------- */
+
+  function say(msg) { document.getElementById("status").textContent = msg; }
+
+  document.getElementById("export").addEventListener("click", function () {
+    var blob = new Blob([JSON.stringify({ done: Object.keys(done) }, null, 2)], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "toolkit-roadmap-progress.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+    say("Progress saved to toolkit-roadmap-progress.json. Import it on another device to continue.");
+  });
+
+  document.getElementById("import").addEventListener("click", function () {
+    document.getElementById("importfile").click();
+  });
+
+  document.getElementById("importfile").addEventListener("change", function (e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var list = JSON.parse(reader.result).done;
+        if (!Array.isArray(list)) throw new Error("bad format");
+        var known = {};
+        SKILLS.forEach(function (s) { known[skillId(s)] = true; });
+        var next = {};
+        var count = 0;
+        list.forEach(function (t) { if (known[t]) { next[t] = true; count++; } });
+        done = next;
+        saveDone(done);
+        renderGroups();
+        say("Imported " + count + " ticked skills.");
+      } catch (err) {
+        say("That file could not be read. Choose a file made with Export progress.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
   });
 
   /* ---------- start ---------- */
